@@ -2,15 +2,14 @@ package simulator.model;
 
 import org.json.JSONObject;
 
-import simulator.misc.*;
+import simulator.misc.Vector2D;
 
-//Basic body
 public class Body {
 	
-	public Body(String id, Vector2D velocity, Vector2D force, Vector2D position, double mass) {
+	public Body(String id, Vector2D velocity, Vector2D position, double mass) {
 		this.id = id;
 		this.velocity = velocity;
-		this.force = force;
+		this.force = new Vector2D();
 		this.position = position;
 		this.mass = mass;
 	}
@@ -25,16 +24,18 @@ public class Body {
 	
 	public double getMass() { return mass; }
 	
-	public void addForce(Vector2D newforce) { force.plus(newforce); }
+	void addForce(Vector2D newForce) { force.plus(newForce); }
 	
-	public void resetForce() { this.force = new Vector2D(); } //Provisional
+	void resetForce() { force = new Vector2D(); }
 	
-	public void move(double time) {
+	void move(double time) {
+		Vector2D acceleration = force.scale(1/mass);
 		
-		if (mass != 0) acceleration = force.scale(1/mass);
-		position = position.plus(velocity.scale(time).plus(acceleration.scale(Math.pow(time, 2) / 2)));
+		position =  position.plus(velocity.scale(time).plus(acceleration.scale(0.5 * time * time)));
 		velocity = velocity.plus(acceleration.scale(time));
 	}
+	
+	public boolean equals(Object other) { return this.equals(other); /*Must check*/ }
 	
 	public JSONObject getState() {
 		JSONObject returnJSON = new JSONObject();
@@ -46,17 +47,13 @@ public class Body {
 		returnJSON.put("f", force);
 		
 		return returnJSON;
-		
 	}
 	
-	public String toString() { return getState().toString();	}
-	
+	public String toString() { return getState().toString(); }
 	
 	protected String id;
 	protected Vector2D velocity;
 	protected Vector2D force;
 	protected Vector2D position;
-	private Vector2D acceleration; //Or in move() put a local variable;
 	protected double mass;
-
 }

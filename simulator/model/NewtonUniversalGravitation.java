@@ -1,41 +1,38 @@
 package simulator.model;
 
-import simulator.model.Body;
-
 import java.util.List;
 
-import simulator.misc.*;
+import simulator.misc.Vector2D;
 
 public class NewtonUniversalGravitation implements ForceLaws {
-
-	private static final double GRAVITATIONAL_CONSTANT = 6.67E-11;
 	
-	public NewtonUniversalGravitation(Body body1, Body body2) {
-		this.body1 = body1;
-		this.body2 = body2;
+	public NewtonUniversalGravitation(double gravitational) {
+		this.gravitational = gravitational;
 	}
 	
-	@Override
-	public void apply(List<Body> bs) {
+	public void apply(List<Body> bodies) {
 		
-		for (int i = 0; i < bs.size(); i++) {
-			Vector2D acceleration = forceDirection().scale(1/bs.get(i).getMass());
-			
-			
+		for (int i = 0; i < bodies.size(); i++) {
+			if (bodies.get(i).getMass() != 0) {
+				for (int j = 0; j < bodies.size(); j++) {
+					if (!bodies.get(i).equals(bodies.get(j))) 
+						bodies.get(i).addForce(force(bodies.get(i), bodies.get(j)));
+				}
+			}
+			else
+				bodies.get(i).addForce(new Vector2D());
 		}
-	};
-	
-	public Vector2D forceDirection() {
-		Vector2D direction = body1.getPosition().direction().minus(body2.getPosition().direction());
-		return direction.scale(getForce());
 	}
 	
-	public double getForce() { 
-		return GRAVITATIONAL_CONSTANT * (body1.getMass() * body2.getMass()) / 
-				Math.pow(body1.getPosition().distanceTo(body2.getPosition()), 2); 
+	private Vector2D force(Body a, Body b) {
+		Vector2D delta = b.getPosition().minus(a.getPosition());
+		double distance = delta.magnitude();
+		double magnitude = distance > 0 ? (gravitational * a.getMass()) / (distance * distance) : 0.0;
+		
+		return delta.direction().scale(magnitude);
 	}
 	
-	private Body body1;
-	private Body body2;
+	public String toString() { return ""; } //TODO
 	
+	private double gravitational;
 }

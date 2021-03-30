@@ -1,5 +1,14 @@
 package simulator.model;
 
-public class NoForce {
+import java.util.List;
 
+public class NoForce implements ForceLaws {
+	
+	public NoForce() { }
+
+	public void apply(List<Body> bs) {
+		
+	}
+	
+	public String toString() { return ""; } //TODO
 }
